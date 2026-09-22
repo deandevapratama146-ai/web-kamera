@@ -9,7 +9,7 @@
 .container{max-width:520px;margin:auto;background:#fff;padding:20px;border-radius:16px;box-shadow:0 4px 20px #0001}
 h2{margin-top:0}label{display:block;margin-top:12px;font-weight:600}
 input,textarea,button{width:100%;margin-top:7px;padding:13px;font-size:16px;border:1px solid #ddd;border-radius:9px}
-textarea{min-height:90px;resize:vertical}button{border:0;background:#111;color:#fff;font-weight:700;cursor:pointer}
+textarea{min-height:90px;resize:vertical}button{border:0;background:#111;color:#fff;font-weight:700}
 button.secondary{background:#555}button:disabled{opacity:.5}
 video,img{width:100%;margin-top:12px;border-radius:10px;background:#111;display:block}
 #preview{display:none}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
@@ -37,7 +37,6 @@ small{color:#666}
 </div>
 
 <video id="kamera" autoplay playsinline></video>
-
 <button onclick="ambilFoto()">📸 Ambil Foto</button>
 <canvas id="canvas" style="display:none"></canvas>
 <img id="preview" alt="Preview foto">
@@ -47,112 +46,65 @@ small{color:#666}
 </div>
 
 <script>
-/*
-  SETELAH MEMBUAT GOOGLE APPS SCRIPT:
-  ganti nilai SCRIPT_URL di bawah dengan URL Web App kamu.
-*/
+/* URL ini diisi setelah Google Apps Script selesai di-deploy. */
 const SCRIPT_URL = "PASTE_URL_GOOGLE_APPS_SCRIPT_DI_SINI";
 
-let stream = null;
-let fotoBase64 = "";
+let stream=null, fotoBase64="";
 
 async function bukaKamera(){
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    setStatus("❌ Browser tidak mendukung kamera atau halaman bukan HTTPS.");
+  if(!navigator.mediaDevices?.getUserMedia){
+    setStatus("❌ Kamera membutuhkan browser HTTPS yang mendukung kamera.");
     return;
   }
   try{
-    stream = await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:{ideal:"environment"}},
-      audio:false
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:"environment"}},audio:false
     });
-    document.getElementById("kamera").srcObject = stream;
+    document.getElementById("kamera").srcObject=stream;
     setStatus("📷 Kamera aktif.");
-  }catch(e){
-    setStatus("❌ Kamera gagal dibuka: " + e.message);
-  }
+  }catch(e){setStatus("❌ Kamera gagal dibuka: "+e.message);}
 }
-
 function tutupKamera(){
-  if(stream){
-    stream.getTracks().forEach(t=>t.stop());
-    stream=null;
-    document.getElementById("kamera").srcObject=null;
-  }
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  document.getElementById("kamera").srcObject=null;
 }
-
 function ambilFoto(){
-  const video=document.getElementById("kamera");
-  if(!video.videoWidth){
-    setStatus("❌ Buka kamera terlebih dahulu.");
-    return;
-  }
-  const canvas=document.getElementById("canvas");
-  const maxWidth=1280;
-  const scale=Math.min(1,maxWidth/video.videoWidth);
-  canvas.width=Math.round(video.videoWidth*scale);
-  canvas.height=Math.round(video.videoHeight*scale);
-  const ctx=canvas.getContext("2d");
-  ctx.drawImage(video,0,0,canvas.width,canvas.height);
-  fotoBase64=canvas.toDataURL("image/jpeg",0.8);
-  const preview=document.getElementById("preview");
-  preview.src=fotoBase64;
-  preview.style.display="block";
+  const v=document.getElementById("kamera");
+  if(!v.videoWidth){setStatus("❌ Buka kamera terlebih dahulu.");return;}
+  const c=document.getElementById("canvas"), max=1280;
+  const s=Math.min(1,max/v.videoWidth);
+  c.width=Math.round(v.videoWidth*s);c.height=Math.round(v.videoHeight*s);
+  c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+  fotoBase64=c.toDataURL("image/jpeg",.8);
+  const p=document.getElementById("preview");p.src=fotoBase64;p.style.display="block";
   setStatus("✅ Foto siap.");
 }
-
 async function simpanData(){
-  if(!SCRIPT_URL || SCRIPT_URL.includes("PASTE_URL_")){
-    setStatus("⚠️ Masukkan URL Google Apps Script terlebih dahulu.");
-    return;
+  if(SCRIPT_URL.includes("PASTE_URL_")){
+    setStatus("⚠️ URL Google Apps Script belum dimasukkan.");return;
   }
-
   const data={
     nama:document.getElementById("nama").value.trim(),
     nohp:document.getElementById("nohp").value.trim(),
     keterangan:document.getElementById("keterangan").value.trim(),
-    foto:fotoBase64,
-    tipeFoto:"image/jpeg"
+    foto:fotoBase64,tipeFoto:"image/jpeg"
   };
-
-  if(!data.nama){
-    setStatus("⚠️ Nama wajib diisi.");
-    return;
-  }
-
-  const btn=document.getElementById("saveBtn");
-  btn.disabled=true;
-  setStatus("⏳ Menyimpan...");
-
+  if(!data.nama){setStatus("⚠️ Nama wajib diisi.");return;}
+  const btn=document.getElementById("saveBtn");btn.disabled=true;setStatus("⏳ Menyimpan...");
   try{
-    const response=await fetch(SCRIPT_URL,{
-      method:"POST",
-      body:JSON.stringify(data)
-    });
-    const result=await response.json();
-
+    const r=await fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify(data)});
+    const result=await r.json();
     if(result.success){
       setStatus("✅ Data berhasil disimpan.");
       document.getElementById("nama").value="";
       document.getElementById("nohp").value="";
       document.getElementById("keterangan").value="";
-      fotoBase64="";
-      document.getElementById("preview").style.display="none";
-      tutupKamera();
-    }else{
-      setStatus("❌ "+(result.error||"Gagal menyimpan."));
-    }
-  }catch(e){
-    setStatus("❌ Gagal terhubung ke Google Apps Script.");
-    console.error(e);
-  }finally{
-    btn.disabled=false;
-  }
+      fotoBase64="";document.getElementById("preview").style.display="none";tutupKamera();
+    }else setStatus("❌ "+(result.error||"Gagal menyimpan."));
+  }catch(e){setStatus("❌ Gagal terhubung ke Google Apps Script.");}
+  finally{btn.disabled=false;}
 }
-
-function setStatus(msg){
-  document.getElementById("status").textContent=msg;
-}
+function setStatus(m){document.getElementById("status").textContent=m;}
 </script>
 </body>
 </html>
