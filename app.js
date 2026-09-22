@@ -1,36 +1,47 @@
-const DEFAULT_DEVICES=['Tripod','Kamera','TV','Lampu 1','Lampu 2','Laptop','Kebersihan'];
-let devices=JSON.parse(localStorage.getItem('wk_devices')||'null')||DEFAULT_DEVICES;
-let studios=JSON.parse(localStorage.getItem('wk_studios')||'null')||['Studio 1'];
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-$('#date').value=new Date().toISOString().slice(0,10);
-const DEFAULT_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwImFLJJdv_ggsmOpY15oAiZxe9Z0RF-OTT9-UOw-nTB9cSEFOaQqUsLZ1KIhZM8PJm/exec';
-$('#scriptUrl').value=localStorage.getItem('wk_script_url')||DEFAULT_SCRIPT_URL;
-function save(){localStorage.setItem('wk_devices',JSON.stringify(devices));localStorage.setItem('wk_studios',JSON.stringify(studios));}
-function renderDevices(){ $('#equipment').innerHTML=devices.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join(''); $('#equipmentChecks').innerHTML=devices.map(d=>`<label class="check"><input type="checkbox" data-dev="${esc(d)}">${esc(d)}</label>`).join(''); $('#deviceList').innerHTML=devices.map((d,i)=>`<div class="card row"><b>${esc(d)}</b><button class="danger" onclick="removeDevice(${i})">Hapus</button></div>`).join(''); }
-function renderStudios(){ $('#studioList').innerHTML=studios.map((s,si)=>`<div class="card"><div class="row"><h3>${esc(s)}</h3><button class="danger" onclick="removeStudio(${si})">Hapus</button></div>${devices.map((d,di)=>`<div class="card"><b>${esc(d)}</b><div class="status"><button class="okbtn" data-key="${si}-${di}" onclick="setStatus(this,'OK')">OK</button><button class="badbtn" data-key="${si}-${di}" onclick="setStatus(this,'TIDAK OK')">Tidak OK</button></div><label>Foto perangkat<input type="file" accept="image/*" capture="environment" onchange="uploadCheck(this,${si},${di})"></label><div id="photo-${si}-${di}"></div><label>Keterangan<textarea id="note-${si}-${di}" placeholder="Keterangan kondisi..."></textarea></label><button class="primary" onclick="saveCheck(${si},${di})">Simpan Pemeriksaan</button></div>`).join('')}</div>`).join(''); }
-function esc(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-window.removeDevice=i=>{if(confirm('Hapus perangkat ini?')){devices.splice(i,1);save();renderDevices();renderStudios();}};
-window.removeStudio=i=>{if(confirm('Hapus studio ini?')){studios.splice(i,1);save();renderStudios();}};
-$('#addDevice').onclick=()=>{let n=prompt('Nama perangkat baru:');if(n&&n.trim()){devices.push(n.trim());save();renderDevices();renderStudios();}};
-$('#addStudio').onclick=()=>{let n=prompt('Nama studio baru:');if(n&&n.trim()){studios.push(n.trim());save();renderStudios();}};
-let statuses={};window.setStatus=(b,v)=>{statuses[b.dataset.key]=v; b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');};
-async function post(data){
-  const url=localStorage.getItem('wk_script_url')||DEFAULT_SCRIPT_URL;
-  if(!url) throw Error('URL Apps Script belum diisi di Pengaturan.');
-  // Google Apps Script Web App tidak mengirim header CORS yang bisa dibaca browser.
-  // no-cors + text/plain membuat POST dari GitHub Pages tetap dapat dikirim tanpa preflight.
-  await fetch(url,{
-    method:'POST',
-    mode:'no-cors',
-    redirect:'follow',
-    headers:{'Content-Type':'text/plain;charset=UTF-8'},
-    body:JSON.stringify(data)
-  });
-  return {ok:true,message:'Data berhasil dikirim ke Google Spreadsheet.'};
+const URL='https://script.google.com/macros/s/AKfycbwImFLJJdv_ggsmOpY15oAiZxe9Z0RF-OTT9-UOw-nTB9cSEFOaQqUsLZ1KIhZM8PJm/exec';
+const defaults={business:['KLIK INDOMARET'],studio:['Studio 1'],device:['Tripod','Kamera','TV','Lampu 1','Lampu 2','Laptop','Kebersihan'],duration:['09:00 - 21:00','11:00 - 21:00']};
+let master={...defaults}; let currentDevice=null,currentStatus='OK',items={};
+const $=x=>document.getElementById(x);
+$('date').value=new Date().toISOString().slice(0,10);
+
+async function post(data){return fetch(URL,{method:'POST',mode:'no-cors',body:JSON.stringify(data)});}
+function fill(id,arr){$(id).innerHTML=arr.map(x=>`<option>${esc(x)}</option>`).join('')}
+function esc(x){return String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function renderMaster(){
+ fill('unit',master.business);fill('studio',master.studio);fill('duration',master.duration);
+ $('businessList').innerHTML=master.business.map(x=>`<div class=row>${esc(x)}</div>`).join('');
+ $('studioList').innerHTML=master.studio.map(x=>`<div class=row>${esc(x)}</div>`).join('');
+ $('deviceList').innerHTML=master.device.map(x=>`<div class=row>${esc(x)}</div>`).join('');
+ $('durationList').innerHTML=master.duration.map(x=>`<div class=row>${esc(x)}</div>`).join('');
+ $('countStudio').textContent=master.studio.length;$('countDevice').textContent=master.device.length;$('countBusiness').textContent=master.business.length;
+ renderDevices();
 }
-$('#usageForm').onsubmit=async e=>{e.preventDefault();let selected=[...$('#equipment').selectedOptions].map(o=>o.value);let checks={};$$('#equipmentChecks input').forEach(x=>checks[x.dataset.dev]=x.checked);try{await post({action:'usage',date:$('#date').value,unit:$('#unit').value,duration:$('#duration').value,equipment:$('#equipmentName').value||selected.join(', '),checks,note:$('#usageNote').value});$('#msg').textContent='Tersimpan ke Google Spreadsheet.';e.target.reset();$('#date').value=new Date().toISOString().slice(0,10);}catch(err){$('#msg').textContent=err.message;}};
-window.uploadCheck=async(input,si,di)=>{let f=input.files[0];if(!f)return;let reader=new FileReader();reader.onload=()=>{input.dataset.data=reader.result;$('#photo-'+si+'-'+di).innerHTML='<img class="photo" src="'+reader.result+'">';};reader.readAsDataURL(f);};
-window.saveCheck=async(si,di)=>{let studio=studios[si],device=devices[di],key=si+'-'+di;let fileInput=$$('#studioList input[type=file]')[si*devices.length+di];let note=$('#note-'+key).value;let status=statuses[key]||'OK';let img=fileInput?.dataset.data||'';try{let r=await post({action:'inspection',studio,device,status,note,image:img,date:$('#date').value});alert(r.message||'Pemeriksaan tersimpan');}catch(e){alert(e.message)}};
-$('#saveSettings').onclick=()=>{localStorage.setItem('wk_script_url',$('#scriptUrl').value.trim());alert('Pengaturan disimpan.');};
-$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));$$('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.tab).classList.add('active');});
-renderDevices();renderStudios();
+function renderDevices(){
+ $('devices').innerHTML=master.device.map(d=>{let x=items[d]||{};return `<div class=device><div class=deviceHead><div><div class=deviceName>${esc(d)}</div><div class=state>${esc(x.status||'Belum diperiksa')}${x.note?' • '+esc(x.note):''}</div></div><button onclick="openDevice('${encodeURIComponent(d)}')">📷 Periksa</button></div>${x.image?'<img class=preview src="'+x.image+'">':''}</div>`}).join('');
+}
+window.showPage=function(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('pageTitle').textContent={dashboard:'Dashboard',transaction:'Pemakaian & Pemeriksaan',reports:'Laporan',master:'Master Data'}[id]||id;closeMenu()}
+$('menu').onclick=()=>{$('drawer').classList.remove('hidden');$('shade').classList.remove('hidden')};
+function closeMenu(){$('drawer').classList.add('hidden');$('shade').classList.add('hidden')}
+window.closeMenu=closeMenu;
+window.addMaster=async function(type,id){let v=$(id).value.trim();if(!v)return;let key={ 'UNIT BISNIS':'business','STUDIO':'studio','PERALATAN':'device','DURASI':'duration'}[type];if(!master[key].includes(v)){master[key].push(v);$(id).value='';renderMaster();await post({action:'master',jenis:type,nama:v})}}
+window.openDevice=function(d){currentDevice=decodeURIComponent(d);currentStatus='OK';$('modalName').textContent=currentDevice;$('photo').value='';$('preview').classList.add('hidden');$('deviceNote').value='';$('ok').classList.add('selected');$('bad').classList.remove('selected');$('modal').classList.remove('hidden')}
+window.closeModal=function(){$('modal').classList.add('hidden')}
+window.setStatus=function(s){currentStatus=s;$('ok').classList.toggle('selected',s==='OK');$('bad').classList.toggle('selected',s==='TIDAK OK')}
+$('photo').onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{$('preview').src=r.result;$('preview').classList.remove('hidden');};r.readAsDataURL(f)}
+window.saveDevice=function(){items[currentDevice]={status:currentStatus,note:$('deviceNote').value,image:$('preview').src||''};closeModal();renderDevices()}
+
+$('save').onclick=async()=>{
+ const selected=Object.entries(items).map(([device,x])=>({device,status:x.status,note:x.note||'',image:x.image||''}));
+ if(!selected.length){$('statusMsg').textContent='Periksa minimal satu perangkat.';return}
+ $('statusMsg').textContent='Menyimpan...';
+ try{await post({action:'transaction',date:$('date').value,unit:$('unit').value,studio:$('studio').value,duration:$('duration').value,note:$('generalNote').value,items:selected});$('statusMsg').textContent='✓ Transaksi dikirim. Data akan masuk ke Spreadsheet dan foto ke Drive.';items={};$('generalNote').value='';renderDevices()}catch(e){$('statusMsg').textContent='Gagal mengirim: '+e.message}
+}
+
+window.loadReport=async function(){
+ $('reportTable').innerHTML='<p>Memuat...</p>';
+ try{
+  const r=await fetch(URL,{method:'POST',mode:'no-cors',body:JSON.stringify({action:'report'})});
+  $('reportTable').innerHTML='<p>Laporan utama tersimpan di Google Spreadsheet. Untuk versi berikutnya dapat ditambahkan pembacaan laporan live dari Apps Script.</p>';
+ }catch(e){$('reportTable').innerHTML='<p>Gunakan sheet Transaksi dan Pemeriksaan di Spreadsheet.</p>'}
+}
+renderMaster();
