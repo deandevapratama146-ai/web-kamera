@@ -14,7 +14,20 @@ window.removeStudio=i=>{if(confirm('Hapus studio ini?')){studios.splice(i,1);sav
 $('#addDevice').onclick=()=>{let n=prompt('Nama perangkat baru:');if(n&&n.trim()){devices.push(n.trim());save();renderDevices();renderStudios();}};
 $('#addStudio').onclick=()=>{let n=prompt('Nama studio baru:');if(n&&n.trim()){studios.push(n.trim());save();renderStudios();}};
 let statuses={};window.setStatus=(b,v)=>{statuses[b.dataset.key]=v; b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');};
-async function post(data){let url=localStorage.getItem('wk_script_url')||DEFAULT_SCRIPT_URL;if(!url)throw Error('URL Apps Script belum diisi di Pengaturan.');let r=await fetch(url,{method:'POST',body:JSON.stringify(data)});return await r.json();}
+async function post(data){
+  const url=localStorage.getItem('wk_script_url')||DEFAULT_SCRIPT_URL;
+  if(!url) throw Error('URL Apps Script belum diisi di Pengaturan.');
+  // Google Apps Script Web App tidak mengirim header CORS yang bisa dibaca browser.
+  // no-cors + text/plain membuat POST dari GitHub Pages tetap dapat dikirim tanpa preflight.
+  await fetch(url,{
+    method:'POST',
+    mode:'no-cors',
+    redirect:'follow',
+    headers:{'Content-Type':'text/plain;charset=UTF-8'},
+    body:JSON.stringify(data)
+  });
+  return {ok:true,message:'Data berhasil dikirim ke Google Spreadsheet.'};
+}
 $('#usageForm').onsubmit=async e=>{e.preventDefault();let selected=[...$('#equipment').selectedOptions].map(o=>o.value);let checks={};$$('#equipmentChecks input').forEach(x=>checks[x.dataset.dev]=x.checked);try{await post({action:'usage',date:$('#date').value,unit:$('#unit').value,duration:$('#duration').value,equipment:$('#equipmentName').value||selected.join(', '),checks,note:$('#usageNote').value});$('#msg').textContent='Tersimpan ke Google Spreadsheet.';e.target.reset();$('#date').value=new Date().toISOString().slice(0,10);}catch(err){$('#msg').textContent=err.message;}};
 window.uploadCheck=async(input,si,di)=>{let f=input.files[0];if(!f)return;let reader=new FileReader();reader.onload=()=>{input.dataset.data=reader.result;$('#photo-'+si+'-'+di).innerHTML='<img class="photo" src="'+reader.result+'">';};reader.readAsDataURL(f);};
 window.saveCheck=async(si,di)=>{let studio=studios[si],device=devices[di],key=si+'-'+di;let fileInput=$$('#studioList input[type=file]')[si*devices.length+di];let note=$('#note-'+key).value;let status=statuses[key]||'OK';let img=fileInput?.dataset.data||'';try{let r=await post({action:'inspection',studio,device,status,note,image:img,date:$('#date').value});alert(r.message||'Pemeriksaan tersimpan');}catch(e){alert(e.message)}};

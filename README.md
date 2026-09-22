@@ -1,30 +1,19 @@
-# Web Kamera & Studio
+# Web Kamera - GitHub Pages + Google Sheets
 
-Paket siap upload ke GitHub Pages.
+Paket ini menggunakan GitHub Pages sebagai frontend dan Google Apps Script sebagai backend.
 
-## Backend sudah terpasang
-URL Google Apps Script Web App sudah diisi di `app.js`.
+## URL Apps Script
+URL sudah dipasang di `app.js`.
 
-Fungsi:
-- Input pemakaian peralatan
-- Kolom sesuai format spreadsheet
-- Tambah/hapus perangkat
-- Tambah/hapus studio
-- Pemeriksaan tiap perangkat: OK / TIDAK OK
-- Foto langsung dari kamera HP
-- Keterangan per perangkat
-- Foto disimpan ke Google Drive dan URL masuk ke Google Sheet
+## Upload ke GitHub
+Upload isi folder `web-kamera-package` ke root repository sehingga `index.html` berada langsung di root.
 
-## Upload GitHub Pages
-1. Ekstrak ZIP.
-2. Upload `index.html`, `style.css`, dan `app.js` ke repository GitHub Pages.
-3. Jika menggunakan GitHub web: Add file -> Upload files.
-4. Pastikan file berada di root repository.
-5. Tunggu GitHub Pages selesai build.
+## Penting
+Google Apps Script Web App tidak menyediakan CORS header yang dapat dibaca frontend. Karena itu frontend mengirim POST dengan `mode: no-cors` dan `text/plain`. Browser tidak dapat membaca balasan server, jadi aplikasi menampilkan status terkirim setelah request selesai. Cek Google Sheet untuk memastikan data masuk.
 
-## Google Apps Script
-Apps Script harus menggunakan isi `Code.gs` pada project yang sudah dideploy.
-Jika `Code.gs` diubah, lakukan Deploy -> Manage deployments -> Edit -> New version -> Deploy.
+## Sheet yang dibuat otomatis
+- Pemakaian
+- Pemeriksaan Studio
+- Perangkat
 
-## Catatan
-Data perangkat dan nama studio tersimpan di browser perangkat tersebut melalui localStorage. Data transaksi/pemeriksaan dikirim ke Google Spreadsheet.
+Foto pemeriksaan disimpan ke Google Drive dan URL file dicatat di sheet `Pemeriksaan Studio`.
