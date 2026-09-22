@@ -1,26 +1,30 @@
-# Web Kamera & Pemeriksaan Studio
+# Web Kamera & Studio
 
-## Isi
-- `index.html`, `style.css`, `app.js`: upload langsung ke repository GitHub Pages.
-- `Code.gs`: backend Google Apps Script untuk menulis ke Google Spreadsheet dan menyimpan foto pemeriksaan ke Google Drive.
+Paket siap upload ke GitHub Pages.
 
-## Setup Google Spreadsheet
-1. Buka spreadsheet target.
-2. Extensions > Apps Script.
-3. Tempel isi `Code.gs`, simpan.
-4. Jalankan fungsi `setup()` sekali dan izinkan akses.
-5. Deploy > New deployment > Web app.
-6. Execute as: Me. Who has access: Anyone.
-7. Salin URL `/exec`.
-8. Buka GitHub Pages > Pengaturan pada aplikasi dan masukkan URL tersebut.
+## Backend sudah terpasang
+URL Google Apps Script Web App sudah diisi di `app.js`.
 
-Sheet otomatis dibuat:
-- `Pemakaian`: No, DD/MM/YY, Unit Bisnis, Durasi Pemakaian, Nama Peralatan, Tripod, Kamera, Tv, Lampu 1, Lampu 2, Laptop, Kebersihan, Keterangan.
-- `Pemeriksaan Studio`: No, DD/MM/YY, Studio, Nama Perangkat, Foto, Status, Keterangan.
-- `Perangkat`: daftar perangkat.
+Fungsi:
+- Input pemakaian peralatan
+- Kolom sesuai format spreadsheet
+- Tambah/hapus perangkat
+- Tambah/hapus studio
+- Pemeriksaan tiap perangkat: OK / TIDAK OK
+- Foto langsung dari kamera HP
+- Keterangan per perangkat
+- Foto disimpan ke Google Drive dan URL masuk ke Google Sheet
 
-## GitHub Pages
-Upload/replace 3 file web (`index.html`, `style.css`, `app.js`) ke repository. Pastikan Pages memakai branch/folder yang benar.
+## Upload GitHub Pages
+1. Ekstrak ZIP.
+2. Upload `index.html`, `style.css`, dan `app.js` ke repository GitHub Pages.
+3. Jika menggunakan GitHub web: Add file -> Upload files.
+4. Pastikan file berada di root repository.
+5. Tunggu GitHub Pages selesai build.
 
-## Catatan kamera
-Tombol foto menggunakan `capture="environment"` sehingga pada Android/iPhone browser dapat menawarkan kamera belakang. Browser tetap akan meminta izin kamera/file sesuai kebijakan perangkat.
+## Google Apps Script
+Apps Script harus menggunakan isi `Code.gs` pada project yang sudah dideploy.
+Jika `Code.gs` diubah, lakukan Deploy -> Manage deployments -> Edit -> New version -> Deploy.
+
+## Catatan
+Data perangkat dan nama studio tersimpan di browser perangkat tersebut melalui localStorage. Data transaksi/pemeriksaan dikirim ke Google Spreadsheet.
