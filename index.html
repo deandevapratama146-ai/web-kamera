@@ -84,6 +84,33 @@
     </main>
 
     <aside class="panel" data-track-ignore>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="aktivitas" role="tab">Aktivitas</button>
+        <button class="tab" data-tab="otomasi" role="tab">Otomasi</button>
+      </div>
+
+      <div class="tab-body" id="tab-otomasi" hidden>
+        <p class="hint">Tekan <b>Rekam</b>, lalu klik menu, tombol, dan isi form di halaman. Tekan <b>Berhenti &amp; Simpan</b>, lalu jalankan ulang kapan saja.</p>
+        <div class="rec-bar">
+          <button class="btn primary" id="rec">⏺ Rekam</button>
+          <label class="speed">Kecepatan
+            <select id="speed">
+              <option value="1200">Lambat</option>
+              <option value="600" selected>Normal</option>
+              <option value="200">Cepat</option>
+            </select>
+          </label>
+        </div>
+        <div id="rec-live" class="rec-live" hidden>
+          <div class="rec-title"><span class="dot"></span> Merekam… <b id="rec-count">0</b> langkah</div>
+          <ol id="rec-steps" class="steps"></ol>
+        </div>
+        <div id="play-status" class="play-status" hidden></div>
+        <h3>Otomasi tersimpan</h3>
+        <ul id="autos" class="autos"></ul>
+      </div>
+
+      <div class="tab-body" id="tab-aktivitas">
       <div class="panel-head">
         <h2>Aktivitas Saya</h2>
         <span class="status" id="status">● Merekam</span>
@@ -117,10 +144,13 @@
         <button class="btn" id="export">Ekspor CSV</button>
         <button class="btn danger" id="clear">Hapus Log</button>
       </div>
+      </div>
     </aside>
   </div>
 
   <script src="tracker.js"></script>
+  <script src="automation.js"></script>
   <script src="app.js"></script>
+  <script src="automation-ui.js"></script>
 </body>
 </html>

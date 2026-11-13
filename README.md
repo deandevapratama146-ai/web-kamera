@@ -19,6 +19,27 @@ Buka `index.html` di browser. Tidak perlu server atau instalasi.
 - Jeda / lanjutkan perekaman, ekspor ke CSV, hapus log
 - Log disimpan di browser (localStorage) sehingga tetap ada setelah halaman dimuat ulang
 
+## Otomasi: rekam lalu jalankan ulang
+Buka tab **Otomasi** di panel kanan.
+
+1. Tekan **⏺ Rekam**.
+2. Lakukan langkah-langkah di halaman: klik menu, tekan tombol, isi kolom, pilih dropdown, centang.
+3. Tekan **⏹ Berhenti & Simpan**, lalu beri nama.
+4. Tekan **▶ Jalankan** kapan saja untuk mengulang semua langkah secara otomatis.
+   Kecepatan bisa diatur: Lambat, Normal, atau Cepat.
+
+Lewat tombol **⋯** Anda bisa melihat daftar langkah, mengganti nama, menghapus, atau mengunduh:
+- **Skrip Playwright** (`.js`): menjalankan otomasi yang sama di browser sungguhan dari komputer Anda:
+  ```
+  npm i -D playwright
+  npx playwright install chromium
+  node nama-otomasi.js
+  ```
+  Ganti alamat halaman dengan variabel `URL`, misalnya `URL=https://situs-anda.com node nama-otomasi.js`.
+- **JSON**: data langkah mentah.
+
+Kolom kata sandi tidak pernah direkam.
+
 ## Memakai pelacak di situs lain
 ```html
 <script src="tracker.js"></script>
@@ -34,4 +55,6 @@ dan `data-track-ignore` pada bagian yang tidak ingin dicatat.
 - `index.html` — halaman contoh dengan menu dan tombol
 - `tracker.js` — modul pelacak (bisa dipakai ulang)
 - `app.js` — tampilan panel aktivitas
+- `automation.js` — perekam dan pemutar otomasi (bisa dipakai ulang)
+- `automation-ui.js` — tampilan tab Otomasi
 - `style.css` — tampilan (mendukung mode gelap)
