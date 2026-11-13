@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pelacak Aktivitas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">project1</div>
+    <nav data-menu aria-label="Menu utama">
+      <ul class="menu" role="menubar">
+        <li><button class="menu-btn" data-page="beranda" data-track="Menu: Beranda">Beranda</button></li>
+        <li class="has-sub">
+          <button class="menu-btn" data-track="Menu: Produk" aria-haspopup="true">Produk ▾</button>
+          <ul class="submenu" role="menu">
+            <li><button data-page="produk" data-track="Produk › Daftar Produk">Daftar Produk</button></li>
+            <li><button data-page="produk" data-track="Produk › Tambah Produk">Tambah Produk</button></li>
+            <li><button data-page="produk" data-track="Produk › Kategori">Kategori</button></li>
+          </ul>
+        </li>
+        <li class="has-sub">
+          <button class="menu-btn" data-track="Menu: Laporan" aria-haspopup="true">Laporan ▾</button>
+          <ul class="submenu" role="menu">
+            <li><button data-page="laporan" data-track="Laporan › Harian">Harian</button></li>
+            <li><button data-page="laporan" data-track="Laporan › Bulanan">Bulanan</button></li>
+          </ul>
+        </li>
+        <li><button class="menu-btn" data-page="pengaturan" data-track="Menu: Pengaturan">Pengaturan</button></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="page active" id="page-beranda" data-section="Beranda">
+        <h1>Beranda</h1>
+        <p>Klik menu dan tombol, tekan tombol keyboard, gerakkan mouse. Semua aktivitas tercatat di panel kanan.</p>
+        <div class="row">
+          <button class="btn primary">Mulai</button>
+          <button class="btn">Lihat Bantuan</button>
+          <button class="btn">Notifikasi</button>
+        </div>
+      </section>
+
+      <section class="page" id="page-produk" data-section="Produk">
+        <h1>Produk</h1>
+        <div class="row">
+          <button class="btn primary">Simpan</button>
+          <button class="btn">Edit</button>
+          <button class="btn danger">Hapus</button>
+        </div>
+        <label class="field">Cari produk
+          <input type="text" placeholder="Ketik nama produk…">
+        </label>
+        <label class="field">Kategori
+          <select>
+            <option>Elektronik</option>
+            <option>Pakaian</option>
+            <option>Makanan</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="page" id="page-laporan" data-section="Laporan">
+        <h1>Laporan</h1>
+        <div class="row">
+          <button class="btn primary">Unduh PDF</button>
+          <button class="btn">Cetak</button>
+          <button class="btn">Bagikan</button>
+        </div>
+      </section>
+
+      <section class="page" id="page-pengaturan" data-section="Pengaturan">
+        <h1>Pengaturan</h1>
+        <label class="check"><input type="checkbox"> Mode gelap</label>
+        <label class="check"><input type="checkbox" checked> Terima notifikasi</label>
+        <label class="field">Kata sandi (tidak dicatat)
+          <input type="password" placeholder="••••••">
+        </label>
+        <div class="row"><button class="btn primary">Simpan Pengaturan</button></div>
+      </section>
+    </main>
+
+    <aside class="panel" data-track-ignore>
+      <div class="panel-head">
+        <h2>Aktivitas Saya</h2>
+        <span class="status" id="status">● Merekam</span>
+      </div>
+
+      <div class="stats">
+        <div><b id="s-menu">0</b><span>Menu</span></div>
+        <div><b id="s-tombol">0</b><span>Tombol</span></div>
+        <div><b id="s-key">0</b><span>Keyboard</span></div>
+        <div><b id="s-move">0</b><span>Gerak mouse (px)</span></div>
+      </div>
+      <div class="pos">Posisi mouse: <span id="pos">–</span> · Scroll: <span id="scroll">0</span> px</div>
+
+      <h3>Paling sering</h3>
+      <ol id="top" class="top"></ol>
+
+      <div class="filters">
+        <select id="filter">
+          <option value="">Semua jenis</option>
+          <option value="menu">Menu</option>
+          <option value="tombol">Tombol</option>
+          <option value="keyboard">Keyboard</option>
+          <option value="pilihan">Pilihan</option>
+          <option value="tautan">Tautan</option>
+        </select>
+      </div>
+      <ul id="log" class="log"></ul>
+
+      <div class="actions">
+        <button class="btn" id="toggle">Jeda</button>
+        <button class="btn" id="export">Ekspor CSV</button>
+        <button class="btn danger" id="clear">Hapus Log</button>
+      </div>
+    </aside>
+  </div>
+
+  <script src="tracker.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
