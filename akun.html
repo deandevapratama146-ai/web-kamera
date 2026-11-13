@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bantu Daftar Akun Karyawan</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="akun.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">project1</div>
+    <a class="toplink" href="index.html">← Pelacak &amp; Otomasi</a>
+  </header>
+
+  <div class="wrap">
+    <section class="card">
+      <h1>Bantu Daftar Akun Karyawan</h1>
+      <p class="hint">Halaman ini menyiapkan data tiap karyawan dan tombol <b>Salin</b>. Pendaftaran di Google tetap dilakukan sendiri oleh Anda atau karyawan, termasuk CAPTCHA dan verifikasi nomor HP.</p>
+
+      <label class="field wide">Daftar nama karyawan (satu nama per baris)
+        <textarea id="names" rows="5" placeholder="Budi Santoso&#10;Siti Aminah&#10;Agus Pratama"></textarea>
+      </label>
+      <div class="row">
+        <label class="field">Format username
+          <select id="format">
+            <option value="first.last">nama.belakang (budi.santoso)</option>
+            <option value="firstlast">namabelakang (budisantoso)</option>
+            <option value="f.last">inisial.belakang (b.santoso)</option>
+          </select>
+        </label>
+        <label class="field">Akhiran (opsional)
+          <input id="suffix" type="text" placeholder="mis. ptabc atau 2026" maxlength="20">
+        </label>
+        <label class="field">Atau upload CSV
+          <input id="csv" type="file" accept=".csv,.txt">
+        </label>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="add">Tambahkan ke daftar</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="list-head">
+        <h2>Daftar akun <span id="progress" class="meta"></span></h2>
+        <div class="row tight">
+          <a class="btn" href="https://accounts.google.com/signup" target="_blank" rel="noopener">Buka halaman daftar Google ↗</a>
+          <button class="btn" id="export">Ekspor CSV</button>
+          <button class="btn danger" id="clear">Hapus semua</button>
+        </div>
+      </div>
+      <p class="hint">Kata sandi tersimpan di browser ini saja. Setelah selesai, ekspor lalu hapus daftarnya, dan minta tiap karyawan mengganti kata sandi saat login pertama.</p>
+      <div id="list" class="people"></div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="akun.js"></script>
+</body>
+</html>

@@ -58,3 +58,14 @@ dan `data-track-ignore` pada bagian yang tidak ingin dicatat.
 - `automation.js` — perekam dan pemutar otomasi (bisa dipakai ulang)
 - `automation-ui.js` — tampilan tab Otomasi
 - `style.css` — tampilan (mendukung mode gelap)
+
+## Bantu daftar akun karyawan (`akun.html`)
+Halaman bantu untuk pendaftaran akun secara manual:
+
+1. Tempel daftar nama (satu per baris) atau upload CSV, pilih format username.
+2. Halaman menyiapkan nama depan, nama belakang, usulan username, dan kata sandi acak untuk tiap orang.
+3. Buka halaman daftar Google, lalu pakai tombol **Salin** untuk menempel tiap data.
+4. Centang karyawan yang akunnya sudah jadi, lalu **Ekspor CSV** untuk arsip.
+
+Halaman ini tidak mengisi atau mengirim form Google. CAPTCHA dan verifikasi nomor HP dilakukan sendiri oleh orangnya.
+Kata sandi tersimpan di browser (localStorage); hapus daftar setelah selesai dan minta karyawan mengganti kata sandinya.
