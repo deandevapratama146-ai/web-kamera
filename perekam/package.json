@@ -1,0 +1,7 @@
+{
+  "name": "perekam-browser",
+  "version": "1.0.0",
+  "description": "Browser perekam: mengenali tombol dan kolom yang diklik atau diketik",
+  "scripts": { "rekam": "node rekam.js" },
+  "dependencies": { "playwright": "^1.48.0" }
+}
